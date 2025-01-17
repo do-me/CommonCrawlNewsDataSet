@@ -49,7 +49,8 @@ def main():
 
     # Save initial geomap to Excel
     geomap.to_excel(r'Y:\\Tesla-Datentransfer\\Trabbi\\geomap.xlsx', index=False)
-
+    # Manual cleaning and validatation of extracted locations
+    # Geocode data the data with a service of your choice e.g. Nominatim
     # Load shapefile for spatial join
     kshape = gpd.read_file(r".\vg5000_ebenen_0101\\VG5000_KRS.shp", crs="EPSG:4326")
 
@@ -76,6 +77,7 @@ def main():
 
     # Save finalized geomap to Excel
     geomap.to_excel(r'Y:\\Tesla-Datentransfer\\Trabbi\\geomap_final.xlsx', index=False)
+    
 
 if __name__ == "__main__":
     main()
