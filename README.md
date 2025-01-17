@@ -36,13 +36,12 @@ This repository contains scripts and utilities for downloading, extracting, pars
    - Outputs data enriched with geographic entity information.
 
 7. **07_geocode_news.py**:
-   - Geocodes extracted location entities using Nominatim and Google Maps API.
+   - Geocodes extracted location entities using Nominatim.
    - Merges geocoded data with existing articles and maps locations to administrative boundaries.
    - Outputs geocoded data for spatial analysis.
 
 8. **08_Vectordatabase.py**:
-   - Builds a FAISS vector database for semantic search on article embeddings.
-   - Trains and stores the FAISS index and maintains a mapping of custom IDs.
+   - Builds a Usearch vector database for semantic search on article embeddings and maintains a mapping of custom IDs.
    - Supports efficient similarity-based querying of article content.
 
 9. **storage_script.py**:
