@@ -13,6 +13,7 @@ from tqdm import tqdm
 import hashlib
 import logging
 from argparse import ArgumentParser
+import re
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -100,7 +101,7 @@ def load_and_insert_metadata(directory: str, location_map: Dict[str, int], curso
                 data["id"] = data["id"].apply(strip_uuid)
                 data["tld"] = data["hostname"].apply(extract_tld)
                 data = data[~data["tld"].isin(tlds["Country Code"])]
-
+                data["loc"]=data["loc"].apply(lambda x: re.sub("[^abcdefghijklmnopqrstuvwxyzäöüß ']", "", str(x).lower()).strip())
                 articles = []
                 article_locations = []
                 for _, row in data.iterrows():
