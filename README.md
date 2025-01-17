@@ -32,26 +32,30 @@ This repository contains scripts and utilities for downloading, extracting, pars
 
 6. **06_named_entity_recognition.py**:
    - Performs named entity recognition (NER) to extract geographic entities from article text.
-   - Utilizes a custom spaCy model for NER.
+   - Utilizes a custom spaCy model for NER: https://huggingface.co/LKriesch/LLAMA_fast_geotag
    - Outputs data enriched with geographic entity information.
 
 7. **07_geocode_news.py**:
-   - Geocodes extracted location entities using Nominatim.
-   - Merges geocoded data with existing articles and maps locations to administrative boundaries.
-   - Outputs geocoded data for spatial analysis.
-
-8. **08_Vectordatabase.py**:
-   - Builds a Usearch vector database for semantic search on article embeddings and maintains a mapping of custom IDs.
-   - Supports efficient similarity-based querying of article content.
-
-9. **storage_script.py**:
+   - Extracts and cleans location data, geocode entities, and map them to administrative boundaries.
+   - Outputs a geocoded dataset for spatial analysis.
+     
+8. **08_sqlite_setup.py**:
    - Stores article metadata and geolocation data into an SQLite database.
    - Creates and manages tables for articles, locations, and their relationships.
    - Supports incremental updates to the database with new data.
+     
+9. **09_embedding_transformation.py**:
+    - Transforms article texts into sentence embeddings for semantic retrieval and clustering.
+    - Quantization of embeddings for reduced storage requirements and faster retrieval.
+   
+8. **10_vectordatabase.py**:
+   - Builds a Usearch vector database for semantic search on article embeddings and maintains a mapping of custom IDs.
+   - Supports efficient similarity-based querying of article content.
+
 
 ### Example Usage Scripts
-- **example_analysis.py**: Demonstrates how to query the database and perform a basic spatial analysis.
-- **example_visualization.py**: Provides sample code for visualizing results using heatmaps or clusters.
+- **spatial_analysis.py**: Demonstrates how to query the database and perform a basic spatial analysis.
+- **semantic_search.py**: Provides sample code for using the vectordatabase and retrieve article information from SQLite.
 
 ## Installation
 
