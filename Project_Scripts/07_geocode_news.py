@@ -48,7 +48,7 @@ def main():
     geomap = geomap[geomap["count"] > 100]
 
     # Save initial geomap to Excel
-    geomap.to_excel(r'Y:\\Tesla-Datentransfer\\Trabbi\\geomap.xlsx', index=False)
+    geomap.to_excel(r'.\\geomap.xlsx', index=False)
     # Manual cleaning and validatation of extracted locations
     # Geocode data the data with a service of your choice e.g. Nominatim
     # Load shapefile for spatial join
@@ -76,7 +76,7 @@ def main():
     geomap = geomap[["loc_normal", "latitude", "longitude", "location_id", "ARS", "NUTS", "GEN"]]
 
     # Save finalized geomap to Excel
-    geomap.to_excel(r'Y:\\Tesla-Datentransfer\\Trabbi\\geomap_final.xlsx', index=False)
+    geomap.to_excel(r'.\geomap.xlsx', index=False)
     
 
 if __name__ == "__main__":
