@@ -5,50 +5,50 @@ This repository contains scripts and utilities for downloading, extracting, pars
 ## Repository Structure
 
 ### Project Scripts
-1. **01_download_newscrawl.py**: 
+**01_download_newscrawl.py**: 
    - Downloads CommonCrawl News WARC files for a specified month.
    - Handles concurrent downloads with retries and exponential backoff.
    - Ensures folder structure is created and manages file paths dynamically.
 
-2. **02_extract_newscrawl.py**:
+**02_extract_newscrawl.py**:
    - Extracts text content and metadata from WARC files.
    - Converts the extracted data into Feather format for efficient processing.
    - Supports parallel processing to handle large datasets.
 
-3. **03_extract_text.py**:
+**03_extract_text.py**:
    - Extracts main text and metadata from articles using `trafilatura`.
    - Filters articles based on predefined exclusion rules (e.g., TLD).
    - Outputs processed data in Feather format.
 
-4. **04_compute_quality_metrics.py**:
+**04_compute_quality_metrics.py**:
    - Computes quality metrics for articles, such as sentence count, word length, and non-alphanumeric word ratio.
    - Filters low-quality articles based on these metrics.
    - Outputs the processed data in Feather format.
 
-5. **05_filter_news.py**:
+**05_filter_news.py**:
    - Applies additional filtering criteria to ensure article quality.
    - Filters articles based on metrics like word count, mean word length, and ellipsis usage.
    - Saves filtered data to a new directory.
 
-6. **06_named_entity_recognition.py**:
+**06_named_entity_recognition.py**:
    - Performs named entity recognition (NER) to extract geographic entities from article text.
    - Utilizes a custom spaCy model for NER: https://huggingface.co/LKriesch/LLAMA_fast_geotag
    - Outputs data enriched with geographic entity information.
 
-7. **07_geocode_news.py**:
+**07_geocode_news.py**:
    - Extracts and cleans location data, geocode entities, and map them to administrative boundaries.
    - Outputs a geocoded dataset for spatial analysis.
      
-8. **08_sqlite_setup.py**:
+**08_sqlite_setup.py**:
    - Stores article metadata and geolocation data into an SQLite database.
    - Creates and manages tables for articles, locations, and their relationships.
    - Supports incremental updates to the database with new data.
      
-9. **09_embedding_transformation.py**:
+**09_embedding_transformation.py**:
     - Transforms article texts into sentence embeddings for semantic retrieval and clustering.
     - Quantization of embeddings for reduced storage requirements and faster retrieval.
    
-8. **10_vectordatabase.py**:
+**10_vectordatabase.py**:
    - Builds a Usearch vector database for semantic search on article embeddings and maintains a mapping of custom IDs.
    - Supports efficient similarity-based querying of article content.
 
