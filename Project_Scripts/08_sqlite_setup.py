@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Script for storing article metadata and geolocation data into an SQLite database.
-
-Updated for improved maintainability and robustness.
-@author: Lukas-admin
-"""
 import os
 import sqlite3
 import pandas as pd
@@ -31,6 +24,10 @@ def extract_tld(hostname: str) -> str:
         return hostname.split('.')[-1]
     except Exception:
         return ""
+
+def hash_uuid(uuid_str: str) -> int:
+    """Generate a hashed integer (63-bit) from UUID using SHA-256."""
+    return int(hashlib.sha256(uuid_str.encode()).hexdigest(), 16) % (2**63 - 1)
 
 def create_tables(cursor):
     """Create database tables if they don't exist."""
@@ -67,6 +64,12 @@ def create_tables(cursor):
             FOREIGN KEY (location_id) REFERENCES Locations(location_id)
         );
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Article_Vectors (
+            id TEXT PRIMARY KEY,
+            hashed_id INTEGER UNIQUE
+        );
+    ''')
     cursor.connection.commit()
 
 def load_location_mapping(geomap_path: str) -> Tuple[Dict[str, int], pd.DataFrame]:
@@ -98,33 +101,61 @@ def load_and_insert_metadata(directory: str, location_map: Dict[str, int], curso
             try:
                 file_path = os.path.join(directory, filename)
                 data = pd.read_feather(file_path)
+
+                # Ensure required columns exist
+                required_columns = {'id', 'url', 'excerpt', 'title', 'text', 'tags', 
+                                    'categories', 'hostname', 'date', 'date_crawled', 'loc_normal'}
+                missing_columns = required_columns - set(data.columns)
+                if missing_columns:
+                    logging.error(f"Skipping {filename}: Missing columns {missing_columns}")
+                    continue
+
                 data["id"] = data["id"].apply(strip_uuid)
                 data["tld"] = data["hostname"].apply(extract_tld)
-                data = data[~data["tld"].isin(tlds["Country Code"])]
-                data["loc"]=data["loc"].apply(lambda x: re.sub("[^abcdefghijklmnopqrstuvwxyzäöüß ']", "", str(x).lower()).strip())
+
+                # Ensure 'loc_normal' exists and is cleaned properly
+                data["loc_normal"] = data["loc_normal"].fillna("").astype(str).str.lower()
+                data["loc_normal"] = data["loc_normal"].apply(lambda x: re.sub(r"[^a-zäöüß ']", "", x).strip())
+
                 articles = []
                 article_locations = []
+                article_vectors = []
+                
                 for _, row in data.iterrows():
                     articles.append((
                         row['id'], row['url'], row['excerpt'], row['title'], 
                         row['text'], row['tags'], row['categories'], row['hostname'], 
                         row.get('date', None), row.get('date_crawled', None)
                     ))
-                    location_id = location_map.get(row['loc_normal'], None)
+                    
+                    location_id = location_map.get(row['loc_normal'])
                     if location_id:
                         article_locations.append((row['id'], location_id))
 
+                    # Generate hashed ID for each article
+                    hashed_id = hash_uuid(row['id'])
+                    article_vectors.append((row['id'], hashed_id))
+
+                # Perform batch inserts
                 cursor.executemany('''
                     INSERT OR REPLACE INTO Articles (id, url, excerpt, title, text, tags, categories, hostname, date, date_crawled)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', articles)
+
                 cursor.executemany('''
                     INSERT OR IGNORE INTO Article_Locations (article_id, location_id)
                     VALUES (?, ?)
                 ''', article_locations)
-                cursor.connection.commit()
+
+                cursor.executemany('''
+                    INSERT OR IGNORE INTO Article_Vectors (id, hashed_id)
+                    VALUES (?, ?)
+                ''', article_vectors)
+                
+                cursor.connection.commit()  # Commit once per file for better performance
+
             except Exception as e:
-                logging.error(f"Error processing file {filename}: {e}")
+                logging.error(f"Error processing file {filename}: {e}", exc_info=True)
 
 # Main function
 def main(text_metadata_dir, geomap_path, db_path):
