@@ -23,7 +23,7 @@ def read_feather(file_path):
 # Main function for processing feather files and creating geomap
 def main():
     # Collect all feather files from the folder with NER data
-    files = glob(r"D:\\CommonCrawl\\04_German_News_ner\\*.feather")
+    files = glob(r".\\04_German_News_ner\\*.feather")
 
     # Number of processes to use (adjust according to your system's capabilities)
     num_processes = min(60, len(files))  # Ensure it does not exceed available CPUs
