@@ -45,8 +45,8 @@ This repository contains scripts and utilities for downloading, extracting, pars
    - Supports incremental updates to the database with new data.
      
 **09_embedding_transformation.py**:
-    - Transforms article texts into sentence embeddings for semantic retrieval and clustering.
-    - Quantization of embeddings for reduced storage requirements and faster retrieval.
+   - Transforms article texts into sentence embeddings for semantic retrieval and clustering.
+   - Quantization of embeddings for reduced storage requirements and faster retrieval.
    
 **10_vectordatabase.py**:
    - Builds a Usearch vector database for semantic search on article embeddings and maintains a mapping of custom IDs.
