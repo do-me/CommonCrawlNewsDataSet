@@ -5,7 +5,7 @@ import sqlite3
 
 # Load the binary vector search index with 128-dimensional vectors using Hamming distance and 8-bit integer precision
 indexBinary = Index(ndim=128, metric="hamming", dtype="i8")
-indexBinary.load(r"./NewsIndex_binary.usearch")  # Use forward slashes for better cross-platform compatibility
+indexBinary.load(r"./NewsIndex_binary.usearch")
 
 # Database connection setup
 DB_PATH = r'./CommonCrawlNews.db'
