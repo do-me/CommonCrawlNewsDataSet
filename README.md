@@ -92,13 +92,9 @@ python 04_compute_quality_metrics.py
 python 05_filter_news.py
 python 06_named_entity_recognition.py
 python 07_geocode_news.py
-python 08_Vectordatabase.py
-```
-
-### Querying the Database
-Run example scripts to explore and analyze the data:
-```bash
-python example_analysis.py
+python 08_sqlite_setup.py
+python 09_embedding_transformation.py
+python 10_vectordatabase.py
 ```
 
 ## Features
