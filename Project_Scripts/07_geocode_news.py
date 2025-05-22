@@ -3,9 +3,8 @@ import pandas as pd
 from tqdm import tqdm
 from multiprocessing import Pool
 from glob import glob
-import sqlite3
-import geopandas as gpd
-from shapely.geometry import Point
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
 
 # Function to read and process feather files
 def read_feather(file_path):
@@ -47,37 +46,40 @@ def main():
     geomap = combined_df.groupby("loc_normal").size().reset_index(name="count")
     geomap = geomap[geomap["count"] > 100]
 
-    # Save initial geomap to Excel
-    geomap.to_excel(r'.\\geomap.xlsx', index=False)
-    # Manual cleaning and validatation of extracted locations
-    # Geocode data the data with a service of your choice e.g. Nominatim
-    # Load shapefile for spatial join
-    kshape = gpd.read_file(r".\vg5000_ebenen_0101\\VG5000_KRS.shp", crs="EPSG:4326")
+    #Initialize Geolocator
+    geolocator = Nominatim(user_agent="ADD_USERNAME_HERE", timeout=10)
 
-    # Create GeoDataFrame from geomap for spatial join
-    gdf = gpd.GeoDataFrame(
-        geomap,
-        crs="EPSG:4326",
-        geometry=gpd.points_from_xy(geomap["longitude"], geomap["latitude"])
+    # RateLimiter: 1 call/sec, with up to 3 retries on failure and exponential back-off
+    geocode = RateLimiter(
+    geolocator.geocode,
+    min_delay_seconds=1,
+    max_retries=3,
+    error_wait_seconds=2.0,
+    swallow_exceptions=False
     )
 
-    # Perform spatial join with shapefile
-    g2 = gpd.sjoin(gdf, kshape, op="within")
+    # Prepare result columns
+    geomap["latitude"] = None
+    geomap["longitude"] = None
 
-    # Merge spatial data with geomap
-    geomap = pd.merge(
-        geomap,
-        g2[["loc_normal", "ARS", "NUTS", "GEN"]],
-        on="loc_normal",
-        how="left"
-    ).drop_duplicates()
+    # Iterate over each place name and geocode
+    for idx, row in geomap.iterrows():
+        try:
+            location = geocode(row["loc_normal"] + ", Germany")
+            if location:
+                geomap.at[idx, "latitude"] = location.latitude
+                geomap.at[idx, "longitude"] = location.longitude
+            else:
+                # mark failures however you prefer
+                geomap.at[idx, "latitude"] = None
+                geomap.at[idx, "longitude"] = None
+        except Exception as e:
+            print(f"Geocoding failed for {row['loc_normal']}: {e}")
+            geomap.at[idx, "latitude"] = None
+            geomap.at[idx, "longitude"] = None
 
-    # Finalize geomap structure
-    geomap = geomap[["loc_normal", "latitude", "longitude", "location_id", "ARS", "NUTS", "GEN"]]
-
-    # Save finalized geomap to Excel
+    # Now you can save or continue with your spatial join…
     geomap.to_excel(r'.\geomap.xlsx', index=False)
-    
 
 if __name__ == "__main__":
     main()
